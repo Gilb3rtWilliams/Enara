@@ -1,0 +1,180 @@
+/* Additions on top of the Figma Make stylesheet: validation, live data and small states. */
+
+.field-error {
+  display: block;
+  margin-top: 7px;
+  color: #8c2f48;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.field-note {
+  display: block;
+  margin-top: 7px;
+  color: #746b74;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.input-wrap input.is-invalid {
+  border-color: #b4465f;
+}
+
+.error-banner {
+  margin: 0;
+  padding: 14px;
+  border-radius: 14px;
+  color: #8c2f48;
+  background: #f8dfe4;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* score ring follows the real score instead of a fixed 68% */
+.score-ring {
+  background:
+    radial-gradient(circle, #f9f6f7 59%, transparent 60%),
+    conic-gradient(var(--plum) 0 var(--p, 68%), rgba(103, 54, 81, 0.13) var(--p, 68%));
+}
+
+.result-warnings {
+  margin: 0 24px 18px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--lilac);
+  color: #685d66;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.result-warnings p {
+  margin: 0;
+}
+
+.result-warnings p + p {
+  margin-top: 8px;
+}
+
+.empty-card {
+  margin: 0 24px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--white);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.empty-card h2 {
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.empty-card .primary-button {
+  margin-top: 16px;
+}
+
+.tier-none-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+button.history-card {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+}
+
+.avatar-button {
+  border: 0;
+}
+
+.day-button {
+  font: inherit;
+}
+
+.day-button:disabled {
+  cursor: default;
+}
+
+.nav-arrows {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -6px 0 8px;
+  color: #a2979f;
+  font-size: 10px;
+}
+
+/* inputs in this stylesheet were styled for type=text; keep number spinners out of the way */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* account menu on the round avatar */
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: 0 18px 40px rgba(63, 40, 54, 0.18);
+}
+
+.avatar-menu p {
+  margin: 0;
+  padding: 8px 10px 10px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar-menu button {
+  display: block;
+  width: 100%;
+  padding: 11px 10px;
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.avatar-menu button:hover {
+  background: var(--lilac);
+}
+
+.avatar-menu button.danger {
+  color: #8c2f48;
+}
