@@ -2,7 +2,7 @@
 
 **A two-step symptom screening app for endometriosis risk.**
 
-Enara is a mobile app backed by a machine-learning API. A person answers a short questionnaire about their cycle and symptoms and gets an instant risk indication. If that indication is elevated, they can add two blood test values (CA-125 and CRP) from a hospital report, and the app re-scores them using both their symptoms and the lab results.
+Enara is a mobile app and a website, both backed by a machine-learning API. A person answers a short questionnaire about their cycle and symptoms and gets an instant risk indication. If that indication is elevated, they can add two blood test values (CA-125 and CRP) from a hospital report, and the app re-scores them using both their symptoms and the lab results.
 
 > **Not a medical device.** Enara is a screening and education project trained on a **synthetic dataset**. It cannot diagnose endometriosis and must not be used to make medical decisions. Anyone with severe or persistent symptoms should see a qualified healthcare professional.
 
@@ -48,7 +48,8 @@ Tier 2 is only suggested when Tier 1 comes back elevated, so people with a lower
 - **History** of every saved assessment, with a filter for Tier 1 or combined results.
 - **Doctor summary**: share a plain-text summary of answers and scores through the phone’s share sheet.
 - **Cycle calendar**: log period days, see the estimated cycle day, phase and next period, and record a daily check-in (flow, pain, mood).
-- **Private by design**: results and logs are stored on the device, and the only thing sent to the server is what is needed to compute a score.
+- **Mobile app and website**: the same branding and features in an Expo (React Native) app and a responsive React website with a landing page, About and Privacy pages.
+- **Private by design**: results and logs are stored on the device (or in the browser), and the only thing sent to the server is what is needed to compute a score.
 
 ## How it works
 
@@ -91,9 +92,9 @@ Results on the held-out test set (1,000 records) at the 0.5 threshold:
 
 ```mermaid
 flowchart LR
-    subgraph Phone
-        UI[Expo / React Native app]
-        DB[(On-device storage<br/>AsyncStorage)]
+    subgraph Client[Phone or browser]
+        UI[Expo app / React web app]
+        DB[(On-device storage<br/>AsyncStorage / localStorage)]
         UI <--> DB
     end
     UI -- POST /predict --> API[FastAPI service]
@@ -107,7 +108,7 @@ flowchart LR
 ```
 
 - The **API** validates every request, applies the right scaler, runs the tier logic and returns scores, a recommended next step, a plain-language explanation and any warnings (for example, a value outside the range the model was trained on).
-- The **app** keeps accounts, results, drafts and cycle logs on the device. It calls the API for scores only.
+- The **mobile and web apps** keep accounts, results, drafts and cycle logs on the device (or in the browser). They call the API for scores only. The two apps do not sync with each other.
 
 ## Tech stack
 
@@ -116,7 +117,8 @@ flowchart LR
 | Machine learning | Python, scikit-learn (logistic regression), pandas, NumPy, joblib |
 | Backend | FastAPI, Pydantic v2, Uvicorn |
 | Mobile app | Expo SDK 54, React Native 0.81, React 19, TypeScript, react-native-svg |
-| On-device data | AsyncStorage, expo-crypto (salted password hash for the local sign-in) |
+| Website | React 19, React Router, TypeScript, Vite, bundled DM Sans and Fraunces fonts |
+| On-device data | AsyncStorage (mobile) and localStorage (web), with a salted password hash for the local sign-in |
 | Tests | pytest, httpx / FastAPI TestClient |
 
 ## Project structure
@@ -140,6 +142,8 @@ Enara/
 ├── mobile/                 # Expo app (React Native + TypeScript)
 │   ├── App.tsx
 │   └── src/                # screens, components, API client, storage, cycle logic
+├── web/                    # responsive website (React + Vite), same branding as the mobile app
+│   └── src/                # pages, layouts, components, shared logic in src/lib
 ├── tests/                  # backend tests
 ├── requirements-api.txt
 └── pytest.ini
@@ -183,7 +187,17 @@ Scan the QR code with Expo Go. The app finds the backend by reusing your compute
 
 Your phone and computer must be on the same network, and port 8000 must be allowed through your firewall.
 
-### 3. (Optional) Retrain the models
+### 3. Website (alternative to the mobile app)
+
+```bash
+cd web
+npm install
+npm run dev          # http://localhost:5173
+```
+
+It calls the backend on the same host, port 8000 (override with `VITE_API_URL`). For a deployed site, serve it over HTTPS, make sure the host rewrites all paths to `index.html` (Netlify and Vercel files are included), and add its address to `ENDO_CORS_ORIGINS` on the backend. See `web/README.md`.
+
+### 4. (Optional) Retrain the models
 
 ```bash
 cd ML
@@ -264,9 +278,9 @@ The suite covers the full API: both tiers, the lab-handling rules, input validat
 
 ## Privacy
 
-- Accounts, saved results, drafts and cycle logs are stored **on the device only**.
+- Accounts, saved results, drafts and cycle logs are stored **on the device only** (in the browser for the web app).
 - The app sends the questionnaire answers (and lab values, if entered) to the API to calculate a score. Nothing else leaves the phone.
-- The in-app sign-in is a local lock: the password is stored as a salted hash on the phone, there is no server account, and “Forgot password” cannot send an email. The account menu includes **Delete my data**.
+- The in-app sign-in is a local lock: the password is stored as a salted hash on the device, there is no server account, and “Forgot password” cannot send an email. The account menu includes **Delete my data**.
 - If you deploy the API, serve it over HTTPS and decide deliberately whether to log requests, because they contain health information.
 
 ## Limitations
@@ -283,7 +297,7 @@ The suite covers the full API: both tiers, the lab-handling rules, input validat
 - [ ] Validate and recalibrate on real, clinician-reviewed data
 - [ ] Server-side accounts with proper password hashing and tokens, plus optional cloud backup
 - [ ] Per-prediction explanations that show which answers moved the score
-- [ ] HTTPS deployment (Docker) and production builds with EAS
+- [ ] HTTPS deployment (Docker), a hosted web build, and production mobile builds with EAS
 - [ ] Notifications for period reminders and follow-up check-ins
 - [ ] Localisation and accessibility review
 
